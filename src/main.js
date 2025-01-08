@@ -15,6 +15,34 @@ const dummyTransactions = [
 
 let transactions = dummyTransactions;
 
+// 取引の内容を追加
+function addTransaction(e) {
+  e.preventDefault();
+  if (text.value.trim() === "" || amount.value.trim() === "") {
+    alert("Please add a text and amount");
+  } else {
+    const transaction = {
+      id: generateID(),
+      text: text.value,
+      amount: +amount.value,
+    };
+
+    transactions.push(transaction);
+
+    addTransactionDOM(transaction);
+
+    updateValues();
+
+    text.value = "";
+    amount.value = "";
+  }
+}
+
+// ランダムなIDを作成
+function generateID() {
+  return Math.floor(Math.random() * 100000000);
+}
+
 // 取引をDOMリストに追加
 function addTransactionDOM(transaction) {
   const sign = transaction.amount < 0 ? "-" : "+";
@@ -27,8 +55,10 @@ function addTransactionDOM(transaction) {
   item.innerHTML = `
     ${transaction.text} <span>${sign}${Math.abs(
     transaction.amount
-  )}</span> <button class="delete-btn">X</button>
+  )}</span> <button class="delete-btn" data-id="${transaction.id}">X</button>
   `;
+
+  console.log(transaction.id);
 
   list.appendChild(item);
 }
@@ -60,6 +90,20 @@ function updateValues() {
   `;
 }
 
+// IDを基に取引を削除
+function removeTransaction(id) {
+  transactions = transactions.filter((transaction) => transaction.id !== id);
+  init();
+}
+
+// イベントデリゲーションを使用して削除ボタンを監視
+list.addEventListener("click", (e) => {
+  if (e.target.classList.contains("delete-btn")) {
+    const id = Number(e.target.getAttribute("data-id"));
+    removeTransaction(id);
+  }
+});
+
 // アプリを初期化
 function init() {
   list.innerHTML = "";
@@ -69,3 +113,5 @@ function init() {
 }
 
 init();
+
+form.addEventListener("submit", addTransaction);
