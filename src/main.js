@@ -13,7 +13,12 @@ const dummyTransactions = [
   { id: 4, text: "Camera", amount: 150 },
 ];
 
-let transactions = dummyTransactions;
+const localStorageTransactions = JSON.parse(
+  localStorage.getItem("transaction")
+);
+
+let transactions =
+  localStorage.getItem("transaction") !== null ? localStorageTransactions : [];
 
 // 取引の内容を追加
 function addTransaction(e) {
@@ -32,6 +37,8 @@ function addTransaction(e) {
     addTransactionDOM(transaction);
 
     updateValues();
+
+    updateLocalStorage();
 
     text.value = "";
     amount.value = "";
@@ -57,8 +64,6 @@ function addTransactionDOM(transaction) {
     transaction.amount
   )}</span> <button class="delete-btn" data-id="${transaction.id}">X</button>
   `;
-
-  console.log(transaction.id);
 
   list.appendChild(item);
 }
@@ -93,6 +98,8 @@ function updateValues() {
 // IDを基に取引を削除
 function removeTransaction(id) {
   transactions = transactions.filter((transaction) => transaction.id !== id);
+  updateLocalStorage();
+
   init();
 }
 
@@ -103,6 +110,11 @@ list.addEventListener("click", (e) => {
     removeTransaction(id);
   }
 });
+
+// 取引の内容をローカルストレージに保存
+function updateLocalStorage() {
+  localStorage.setItem("transaction", JSON.stringify(transactions));
+}
 
 // アプリを初期化
 function init() {
